@@ -1,199 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Club Selector</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Registration</title>
+    
+    <!-- ✅ Fixed Firebase v8 CDN Links -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    h1 {
-      margin-top: 20px;
-      color: #333;
-    }
-
-    .button-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      padding: 20px;
-    }
-
-    button {
-      padding: 10px 15px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-      width: 100%;
-      max-width: 250px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    @media (max-width: 600px) {
-      .button-container {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-
-    .floating-container, .password-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .iframe-box, .password-modal-box {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    .iframe-box {
-      max-width: 90%;
-      height: 90%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .iframe-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      background-color: #f9f9f9;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .close-btn {
-      background: red;
-      color: white;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: bold;
-      padding: 5px 10px;
-      border-radius: 5px;
-    }
-
-    .close-btn:hover {
-      background: darkred;
-    }
-
-    iframe {
-      flex-grow: 1;
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
-
-    .password-modal-box input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    .password-modal-box button {
-      width: 100%;
-      padding: 10px;
-    }
-  </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, select, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
 </head>
 <body>
-  <h1>Select a Club</h1>
-  <div class="button-container">
-    <button onclick="openPasswordModal('Bibliophile Club', 'https://www.appsheet.com/start/24cb384e-b3d6-439c-807d-522484a8c995', 'pass1')">Bibliophile Club</button>
-    <button onclick="openPasswordModal('Impactors Club', 'https://www.appsheet.com/start/app2', 'pass2')">Impactors Club</button>
-    <button onclick="openPasswordModal('Quantum Coders Club', 'https://www.appsheet.com/start/app3', 'pass3')">Quantum Coders Club</button>
-    <button onclick="openPasswordModal('Photography Club', 'https://www.appsheet.com/start/app4', 'pass4')">Photography Club</button>
-    <button onclick="openPasswordModal('Project Studio Club', 'https://www.appsheet.com/start/app5', 'pass5')">Project Studio Club</button>
-    <button onclick="openPasswordModal('Yuva Sadhvi Club', 'https://www.appsheet.com/start/app6', 'pass6')">Yuva Sadhvi Club</button>
-    <button onclick="openPasswordModal('Melodia Club', 'https://www.appsheet.com/start/app7', 'pass7')">Melodia Club</button>
-    <button onclick="openPasswordModal('Aqua Green Club', 'https://www.appsheet.com/start/app8', 'pass8')">Aqua Green Club</button>
-    <button onclick="openPasswordModal('Life Savers Club', 'https://www.appsheet.com/start/app9', 'pass9')">Life Savers Club</button>
-    <button onclick="openPasswordModal('Edu Waves Club', 'https://www.appsheet.com/start/app10', 'pass10')">Edu Waves Club</button>
-  </div>
 
-  <div class="password-modal" id="passwordModal">
-    <div class="password-modal-box">
-      <h2 id="modal-title">Enter Password</h2>
-      <input type="password" id="passwordInput" placeholder="Password" />
-      <button onclick="validatePassword()">Submit</button>
+    <div class="container">
+        <h2>Get you club ID</h2>
+        <label for="pin">Enter PIN:</label>
+        <input type="text" id="pin" placeholder="Enter PIN" required>
+
+        <label for="club">Select Club:</label>
+        <select id="club">
+            <option value="" disabled selected>Select a Club</option> <!-- Default disabled option -->
+            <option value="BC">Bibliophile Club</option>
+            <option value="IC">Impactors Club</option>
+            <option value="QC">Quantum Coders Club</option>
+            <option value="PC">Photography Club</option>
+            <option value="PS">Project Studio Club</option>
+            <option value="YS">Yuva Sadhvi Club</option>
+            <option value="MC">Melodia Club</option>
+            <option value="AG">Aqua Green Club</option>
+            <option value="LS">Life Savers Club</option>
+            <option value="EW">Edu Waves Club</option>
+        </select>
+
+        <button id="generateBtn">Generate ID</button>
+
+        <div id="result"></div>
     </div>
-  </div>
 
-  <div class="floating-container" id="floatingApp">
-    <div class="iframe-box">
-      <div class="iframe-header">
-        <span id="iframe-title">AppSheet App</span>
-        <button class="close-btn" onclick="closeApp()">X</button>
-      </div>
-      <iframe id="appFrame" src=""></iframe>
-    </div>
-  </div>
+    <script>
+        // ✅ Ensure Firebase is defined BEFORE using
+        window.onload = function () {
+            // ✅ Initialize Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyA28icYBNTKM6OnQ4lK69MJL6Ukk_niZdY",
+                authDomain: "club-registration-b85c3.firebaseapp.com",
+                projectId: "club-registration-b85c3",
+                storageBucket: "club-registration-b85c3.appspot.com",
+                messagingSenderId: "705397788248",
+                appId: "1:705397788248:web:d2164192e419dd78b4442d",
+                measurementId: "G-QDFYDLZJGZ"
+            };
 
-  <script>
-    let selectedClubName = "";
-    let selectedClubUrl = "";
-    let selectedClubPassword = "";
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
 
-    function openPasswordModal(clubName, url, correctPassword) {
-      selectedClubName = clubName;
-      selectedClubUrl = url;
-      selectedClubPassword = correctPassword;
-      document.getElementById("modal-title").textContent = `Enter password for ${clubName}`;
-      document.getElementById("passwordModal").style.display = "flex";
-    }
+            async function registerUser() {
+                const pin = document.getElementById("pin").value.trim();
+                const clubDropdown = document.getElementById("club");
+                const clubCode = clubDropdown.value;
+                const clubName = clubDropdown.selectedOptions[0].text;
 
-    function validatePassword() {
-      const enteredPassword = document.getElementById("passwordInput").value.trim();
-      if (enteredPassword === selectedClubPassword) {
-        openApp(selectedClubName, selectedClubUrl);
-        document.getElementById("passwordInput").value = "";
-        document.getElementById("passwordModal").style.display = "none";
-      } else {
-        alert("Incorrect password!");
-        document.getElementById("passwordInput").value = "";
-      }
-    }
+                if (!pin) {
+                    alert("Please enter a valid PIN.");
+                    return;
+                }
 
-    function openApp(clubName, url) {
-      document.getElementById("iframe-title").textContent = clubName;
-      document.getElementById("appFrame").src = url;
-      document.getElementById("floatingApp").style.display = "flex";
-    }
+                if (!clubCode) {
+                    alert("Please select a club.");
+                    return;
+                }
 
-    function closeApp() {
-      document.getElementById("appFrame").src = "";
-      document.getElementById("floatingApp").style.display = "none";
-    }
-  </script>
+                try {
+                    // ✅ Get current count of users in the selected club
+                    const clubRef = db.collection("clubs").doc(clubCode);
+                    const clubData = await clubRef.get();
+                    let count = clubData.exists ? clubData.data().count : 0;
+                    count++;
+
+                    // ✅ Generate unique ID (Example: QC001, QC002, etc.)
+                    const uniqueId = `${clubCode}${String(count).padStart(3, '0')}`;
+
+                    // ✅ Store user data in Firestore
+                    await db.collection("users").add({
+                        pin: pin,
+                        club: clubName,
+                        clubCode: clubCode,
+                        userId: uniqueId,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // ✅ Update club count in Firestore
+                    await clubRef.set({ count: count }, { merge: true });
+
+                    // ✅ Display the generated ID to the user
+                    document.getElementById("result").innerHTML = `Your Unique ID: <strong>${uniqueId}</strong>`;
+
+                } catch (error) {
+                    console.error("Error registering user:", error);
+                    alert("Error registering. Please try again.");
+                }
+            }
+
+            // ✅ Attach function to button click
+            document.getElementById("generateBtn").addEventListener("click", registerUser);
+        };
+    </script>
+
 </body>
 </html>

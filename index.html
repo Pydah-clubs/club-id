@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Club Registration</title>
     
-    <!-- ✅ Fixed Firebase v8 CDN Links -->
+    <!-- ✅ Firebase v8 CDN Links -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -49,13 +49,13 @@
 <body>
 
     <div class="container">
-        <h2>Get you club ID</h2>
+        <h2>Get your Club ID</h2>
         <label for="pin">Enter PIN:</label>
         <input type="text" id="pin" placeholder="Enter PIN" required>
 
         <label for="club">Select Club:</label>
         <select id="club">
-            <option value="" disabled selected>Select a Club</option> <!-- Default disabled option -->
+            <option value="" disabled selected>Select a Club</option>
             <option value="BC">Bibliophile Club</option>
             <option value="IC">Impactors Club</option>
             <option value="QC">Quantum Coders Club</option>
@@ -74,72 +74,83 @@
     </div>
 
     <script>
-        // ✅ Ensure Firebase is defined BEFORE using
-        window.onload = function () {
-            // ✅ Initialize Firebase
-            const firebaseConfig = {
-                apiKey: "AIzaSyA28icYBNTKM6OnQ4lK69MJL6Ukk_niZdY",
-                authDomain: "club-registration-b85c3.firebaseapp.com",
-                projectId: "club-registration-b85c3",
-                storageBucket: "club-registration-b85c3.appspot.com",
-                messagingSenderId: "705397788248",
-                appId: "1:705397788248:web:d2164192e419dd78b4442d",
-                measurementId: "G-QDFYDLZJGZ"
-            };
+        // ✅ Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA28icYBNTKM6OnQ4lK69MJL6Ukk_niZdY",
+            authDomain: "club-registration-b85c3.firebaseapp.com",
+            projectId: "club-registration-b85c3",
+            storageBucket: "club-registration-b85c3.appspot.com",
+            messagingSenderId: "705397788248",
+            appId: "1:705397788248:web:d2164192e419dd78b4442d",
+            measurementId: "G-QDFYDLZJGZ"
+        };
 
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-            async function registerUser() {
-                const pin = document.getElementById("pin").value.trim();
-                const clubDropdown = document.getElementById("club");
-                const clubCode = clubDropdown.value;
-                const clubName = clubDropdown.selectedOptions[0].text;
+        async function registerUser() {
+            const pin = document.getElementById("pin").value.trim();
+            const clubDropdown = document.getElementById("club");
+            const clubCode = clubDropdown.value;
+            const clubName = clubDropdown.selectedOptions[0].text;
 
-                if (!pin) {
-                    alert("Please enter a valid PIN.");
-                    return;
-                }
-
-                if (!clubCode) {
-                    alert("Please select a club.");
-                    return;
-                }
-
-                try {
-                    // ✅ Get current count of users in the selected club
-                    const clubRef = db.collection("clubs").doc(clubCode);
-                    const clubData = await clubRef.get();
-                    let count = clubData.exists ? clubData.data().count : 0;
-                    count++;
-
-                    // ✅ Generate unique ID (Example: QC001, QC002, etc.)
-                    const uniqueId = `${clubCode}${String(count).padStart(3, '0')}`;
-
-                    // ✅ Store user data in Firestore
-                    await db.collection("users").add({
-                        pin: pin,
-                        club: clubName,
-                        clubCode: clubCode,
-                        userId: uniqueId,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    // ✅ Update club count in Firestore
-                    await clubRef.set({ count: count }, { merge: true });
-
-                    // ✅ Display the generated ID to the user
-                    document.getElementById("result").innerHTML = `Your Unique ID: <strong>${uniqueId}</strong>`;
-
-                } catch (error) {
-                    console.error("Error registering user:", error);
-                    alert("Error registering. Please try again.");
-                }
+            if (!pin) {
+                alert("Please enter a valid PIN.");
+                return;
             }
 
-            // ✅ Attach function to button click
-            document.getElementById("generateBtn").addEventListener("click", registerUser);
-        };
+            if (!clubCode) {
+                alert("Please select a club.");
+                return;
+            }
+
+            try {
+                // ✅ Check if PIN already exists
+                const usersRef = db.collection("users");
+                const existingUserQuery = await usersRef.where("pin", "==", pin).get();
+
+                if (!existingUserQuery.empty) {
+                    // ✅ PIN exists, show the existing ID & club name
+                    const existingUser = existingUserQuery.docs[0].data();
+                    document.getElementById("result").innerHTML = 
+                        `You have already claimed an ID:<br>
+                         <strong>${existingUser.userId}</strong> in <strong>${existingUser.club}</strong>.`;
+                    return;
+                }
+
+                // ✅ Get current count of users in the selected club
+                const clubRef = db.collection("clubs").doc(clubCode);
+                const clubData = await clubRef.get();
+                let count = clubData.exists ? clubData.data().count : 0;
+                count++;
+
+                // ✅ Generate unique ID (Example: QC001, QC002, etc.)
+                const uniqueId = `${clubCode}${String(count).padStart(3, '0')}`;
+
+                // ✅ Store user data in Firestore
+                await usersRef.add({
+                    pin: pin,
+                    club: clubName,
+                    clubCode: clubCode,
+                    userId: uniqueId,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // ✅ Update club count in Firestore
+                await clubRef.set({ count: count }, { merge: true });
+
+                // ✅ Display the generated ID to the user
+                document.getElementById("result").innerHTML = 
+                    `Your Unique ID: <strong>${uniqueId}</strong> in <strong>${clubName}</strong>`;
+
+            } catch (error) {
+                console.error("Error registering user:", error);
+                alert("Error registering. Please try again.");
+            }
+        }
+
+        // ✅ Attach function to button click
+        document.getElementById("generateBtn").addEventListener("click", registerUser);
     </script>
 
 </body>
